@@ -4,16 +4,16 @@ A collection of Claude Code plugins for AI-powered development.
 
 ## Installation
 
-### From GitHub
+### Step 1: Add the Marketplace
 
 ```bash
 /plugin add hollaugo/prompt-circle-marketplace
 ```
 
-### From Local Directory
+### Step 2: Install a Plugin
 
 ```bash
-/plugin add /path/to/prompt-circle-marketplace
+/plugin install chatgpt-apps-builder
 ```
 
 ## Available Plugins
@@ -44,9 +44,10 @@ Build complete ChatGPT Apps with MCP servers, inline widgets, and cloud deployme
 | `/chatgpt-apps-builder:golden-prompts` | Generate test prompts |
 | `/chatgpt-apps-builder:resume-app` | Resume building an in-progress app |
 
-**Install just this plugin:**
+**Install this plugin:**
 ```bash
-/plugin add hollaugo/prompt-circle-marketplace/plugins/chatgpt-apps-builder
+/plugin add hollaugo/prompt-circle-marketplace
+/plugin install chatgpt-apps-builder
 ```
 
 ## Contributing

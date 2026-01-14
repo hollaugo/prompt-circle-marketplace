@@ -15,11 +15,11 @@ This plugin helps you build ChatGPT Apps from concept to deployment:
 ## Installation
 
 ```bash
-# From the Prompt Circle marketplace
+# Step 1: Add the marketplace
 /plugin add hollaugo/prompt-circle-marketplace
 
-# Or just this plugin
-/plugin add hollaugo/prompt-circle-marketplace/plugins/chatgpt-apps-builder
+# Step 2: Install the plugin
+/plugin install chatgpt-apps-builder
 ```
 
 ## Quick Start
