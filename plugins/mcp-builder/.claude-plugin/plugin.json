@@ -1,0 +1,9 @@
+{
+  "name": "mcp-builder",
+  "version": "1.0.0",
+  "description": "Build, validate, and deploy production-ready MCP servers with AI guidance",
+  "author": {
+    "name": "Prompt Circle",
+    "email": "support@promptcircle.ai"
+  }
+}
