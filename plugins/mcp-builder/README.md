@@ -29,6 +29,10 @@ claude /plugin install mcp-builder
 
 # Validate against best practices
 /mcp-builder:validate
+
+# Test with MCP Inspector
+./START.sh --inspector
+# Or manually: npx @modelcontextprotocol/inspector
 ```
 
 ## Available Skills

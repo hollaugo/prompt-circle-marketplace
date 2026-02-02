@@ -1,0 +1,56 @@
+#!/bin/bash
+# setup.sh - One-time setup for {{serverName}}
+set -euo pipefail
+cd "$(dirname "$0")"
+
+echo "=================================================="
+echo "  {{serverName}} Setup"
+echo "=================================================="
+
+# Check Python version
+PYTHON_VERSION=$(python3 --version 2>&1 | cut -d' ' -f2 | cut -d'.' -f1,2)
+REQUIRED_VERSION="3.10"
+
+if [ "$(printf '%s\n' "$REQUIRED_VERSION" "$PYTHON_VERSION" | sort -V | head -n1)" != "$REQUIRED_VERSION" ]; then
+  echo "Error: Python $REQUIRED_VERSION or higher required (found $PYTHON_VERSION)"
+  exit 1
+fi
+echo "[✓] Python $PYTHON_VERSION"
+
+# Create virtual environment if needed
+if [ ! -d "venv" ]; then
+  echo "[*] Creating virtual environment..."
+  python3 -m venv venv
+fi
+echo "[✓] Virtual environment"
+
+# Activate and install dependencies
+echo "[*] Installing dependencies..."
+source venv/bin/activate
+pip install -q --upgrade pip
+pip install -q -r requirements.txt
+echo "[✓] Dependencies installed"
+
+# Create .env if needed
+if [ ! -f .env ]; then
+  echo "[*] Creating .env from template..."
+  cp .env.example .env
+  echo "[✓] Created .env (edit with your configuration)"
+else
+  echo "[✓] .env already exists"
+fi
+
+# Make scripts executable
+chmod +x START.sh
+
+echo ""
+echo "=================================================="
+echo "  Setup Complete!"
+echo "=================================================="
+echo ""
+echo "  Next steps:"
+echo "    1. Activate venv:  source venv/bin/activate"
+echo "    2. Edit .env if needed"
+echo "    3. Start server:   ./START.sh --dev"
+echo "    4. Test with Inspector: ./START.sh --inspector"
+echo ""

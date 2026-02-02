@@ -17,32 +17,51 @@ You are helping the user test their MCP server to ensure it works correctly.
 
 ### Phase 1: Start the Server
 
-**Python (FastMCP):**
+Use the START.sh script if available:
+
 ```bash
+# Development mode (auto-reload)
+./START.sh --dev
+
+# Or start manually:
 cd your-server-directory
 python server.py
 # Server running at http://localhost:8000
 ```
 
-**TypeScript:**
-```bash
-cd your-server-directory
-npm run dev
-# Server running at http://localhost:3000
-```
-
 ### Phase 2: Test with MCP Inspector
 
-**Install and run:**
+The MCP Inspector is the recommended way to test your server interactively.
+
+**For Streamable HTTP servers:**
 ```bash
-npx @anthropic-ai/mcp-inspector
+# Start your server first, then run Inspector separately
+./START.sh --dev &
+npx @modelcontextprotocol/inspector
 ```
 
-**In the Inspector:**
-1. Enter your server URL: `http://localhost:8000/mcp`
-2. Click "Connect"
-3. View available tools and resources
-4. Test individual tools with sample inputs
+Then in the Inspector UI:
+1. Select "Streamable HTTP" transport
+2. Enter server URL: `http://localhost:8000/mcp`
+3. Click "Connect"
+
+**For stdio servers:**
+```bash
+# Inspector launches and manages your server
+npx @modelcontextprotocol/inspector python server.py
+```
+
+**For Python servers with uv:**
+```bash
+npx @modelcontextprotocol/inspector uv --directory . run your-server
+```
+
+**In the Inspector UI:**
+1. View available tools in the Tools tab
+2. Test individual tools with sample inputs
+3. View resources in the Resources tab
+4. Check prompts in the Prompts tab
+5. Monitor logs in the Notifications pane
 
 ### Phase 3: Test Tools Manually
 

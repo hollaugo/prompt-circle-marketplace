@@ -1,0 +1,83 @@
+#!/bin/bash
+# START.sh - Multi-mode MCP server launcher for {{serverName}}
+set -euo pipefail
+cd "$(dirname "$0")"
+
+# Load environment if exists
+if [ -f .env ]; then set -a; source .env; set +a; fi
+
+PORT="${PORT:-8000}"
+HOST="${HOST:-0.0.0.0}"
+
+case "${1:-}" in
+  --dev)
+    echo "=================================================="
+    echo "  {{serverName}} - Development Mode"
+    echo "=================================================="
+    echo "  Server:    http://${HOST}:${PORT}/mcp"
+    echo "  Health:    http://${HOST}:${PORT}/health"
+    echo ""
+    echo "  To test with MCP Inspector, run in another terminal:"
+    echo "    npx @modelcontextprotocol/inspector"
+    echo "  Then connect to: http://localhost:${PORT}/mcp"
+    echo "=================================================="
+    python server.py
+    ;;
+
+  --inspector)
+    echo "Starting server and MCP Inspector..."
+    python server.py &
+    SERVER_PID=$!
+    sleep 2
+    echo ""
+    echo "MCP Inspector starting..."
+    echo "Connect to: http://localhost:${PORT}/mcp"
+    echo "Transport: Streamable HTTP"
+    echo ""
+    npx @modelcontextprotocol/inspector
+    kill $SERVER_PID 2>/dev/null || true
+    ;;
+
+  --test)
+    echo "Running tests..."
+    if [ -d tests ]; then
+      pytest tests/ -v
+    else
+      echo "No tests directory found. Testing with curl..."
+      python server.py &
+      SERVER_PID=$!
+      sleep 2
+      echo "Testing health endpoint..."
+      curl -s http://localhost:${PORT}/health | python -m json.tool
+      echo ""
+      echo "Testing tools/list..."
+      curl -s -X POST http://localhost:${PORT}/mcp \
+        -H "Content-Type: application/json" \
+        -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}' | python -m json.tool
+      kill $SERVER_PID 2>/dev/null || true
+    fi
+    ;;
+
+  --stdio)
+    echo "Starting in stdio mode..."
+    HTTP_MODE=false python server.py
+    ;;
+
+  --help)
+    echo "Usage: ./START.sh [option]"
+    echo ""
+    echo "Options:"
+    echo "  --dev        Development mode with Streamable HTTP"
+    echo "  --inspector  Start server + MCP Inspector"
+    echo "  --test       Run tests or basic connectivity check"
+    echo "  --stdio      Start in stdio mode (for Claude Desktop)"
+    echo "  --help       Show this help message"
+    echo "  (no option)  Production mode"
+    ;;
+
+  *)
+    # Production mode
+    echo "Starting {{serverName}} in production mode..."
+    python server.py
+    ;;
+esac
