@@ -1,0 +1,116 @@
+import { StrictMode, useState, useEffect } from "react";
+import { createRoot } from "react-dom/client";
+import { useApp, useHostStyles } from "@modelcontextprotocol/ext-apps/react";
+import "./index.css";
+
+// Data interface - customize based on your tool's output
+interface {{pascalCase name}}Data {
+{{#each outputs}}
+  {{this.name}}: {{this.tsType}};
+{{/each}}
+}
+
+interface ErrorData {
+  error: true;
+  message: string;
+}
+
+function {{pascalCase name}}App() {
+  const [data, setData] = useState<{{pascalCase name}}Data | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const { app } = useApp({
+    appInfo: { name: "{{title}}", version: "1.0.0" },
+    onAppCreated: (app) => {
+      app.ontoolresult = (result) => {
+        setLoading(false);
+        const text = result.content?.find((c) => c.type === "text")?.text;
+        if (text) {
+          try {
+            const parsed = JSON.parse(text);
+            if (parsed.error) {
+              setError((parsed as ErrorData).message);
+            } else {
+              setData(parsed as {{pascalCase name}}Data);
+            }
+          } catch {
+            setError("Failed to parse data");
+          }
+        }
+      };
+    },
+  });
+
+  // Apply host CSS variables for theme integration
+  useHostStyles(app);
+
+  // Handle safe area insets for mobile
+  useEffect(() => {
+    if (!app) return;
+    app.onhostcontextchanged = (ctx) => {
+      if (ctx.safeAreaInsets) {
+        const { top, right, bottom, left } = ctx.safeAreaInsets;
+        document.body.style.padding = `${top}px ${right}px ${bottom}px ${left}px`;
+      }
+    };
+  }, [app]);
+
+  if (loading) {
+    return (
+      <div className="card max-w-lg mx-auto">
+        <div className="loading-pulse">
+          <div className="h-6 bg-gray-200 rounded w-32 mb-4" />
+          <div className="h-12 bg-gray-200 rounded w-48 mb-6" />
+          <div className="grid grid-cols-3 gap-3">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="card-inner h-16" />
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="card max-w-lg mx-auto">
+        <div className="text-center py-8">
+          <div className="text-red-500 text-title mb-2">Error</div>
+          <div className="text-secondary">{error}</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!data) {
+    return (
+      <div className="card max-w-lg mx-auto">
+        <div className="text-center py-8 text-secondary">No data available</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="card max-w-lg mx-auto">
+      {/* Header */}
+      <div className="text-title mb-6">{{title}}</div>
+
+      {/* Content - customize based on your data */}
+      <div className="space-y-4">
+{{#each outputs}}
+        <div className="card-inner">
+          <div className="text-label mb-1">{{this.label}}</div>
+          <div className="text-value">{String(data.{{this.name}})}</div>
+        </div>
+{{/each}}
+      </div>
+    </div>
+  );
+}
+
+createRoot(document.getElementById("root")!).render(
+  <StrictMode>
+    <{{pascalCase name}}App />
+  </StrictMode>
+);
